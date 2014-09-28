@@ -7,20 +7,13 @@ HackJam
 import re
 from collections import OrderedDict
 
-# def main(): #calls parse method
-#      text = open('output.txt').read()
-#      dict1, dict2, dict3, stats, dist = parse(text)
-#      print ("dict1: ", dict1, '\n')
-#      print ("dict2: ", dict2, '\n')
-#      print ("dict3: ", dict3, '\n')
-#      print ("part3: ", stats,'\n', dist)
-
-def parse(text): #parses raw data
+def parse(): #parses raw data
     text = open('output.txt').read()
     parts = text.split('\n\n')
     dict1 = parse_assignment_list(parts[0])
     dict2, dict3 = parse_all_grades(parts[1])
     stats, dist = parse_stats(parts[2])
+
     return dict1, dict2, dict3, stats, dist
 
 def parse_assignment_list(part1): #glookup -t
@@ -83,8 +76,6 @@ def parse_stats(part3): #glookup -s _???
     statLines = lines[1:11] #cut off the first line
     distLines = lines[12:]
 
-    # distLines = distLines[:-1]
-
     for line in statLines:
         line = line.replace(" ", "") #remove all spaces
         line = line.split(':') #make line a list with the stat, num
@@ -98,5 +89,3 @@ def parse_stats(part3): #glookup -s _???
         dist[line[0]] = line[1] #{'0.0-4.1': 123}
 
     return statList, dist
-
-# if __name__ == '__main__': main()

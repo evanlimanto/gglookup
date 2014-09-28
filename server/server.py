@@ -67,6 +67,7 @@ def go2(username, password, assignment):
 	    s.logout()
 	    return None
 
+#api calls have to be made with jsonp
 @app.route('/api/1')
 def api1():
 	username = request.args.get('username')
@@ -74,7 +75,7 @@ def api1():
 	callback = request.args.get('callback')
 
 	go1(username, password)
-	dict1, dict2, dict3, stats, dist = parse(ret)
+	dict1, dict2, dict3, stats, dist = parse()
 	
 	dict1 = (json.dumps(dict1))
 	dict2 = (json.dumps(dict2))
