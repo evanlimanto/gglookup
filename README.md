@@ -1,9 +1,20 @@
 gglookup
 ========
 
-**gglookup** is a graphical web interface for **glookup**, a command-line grade-checking program used by the UC Berkeley EECS Department.
+![gglookup-image](http://cl.ly/image/1w371D1J0g3R/Screen%20Shot%202014-09-28%20at%201.49.02%20AM.png)
 
-gglookup was built in 10 hours at **HackJam 2014**.
+**gglookup** is a graphical web interface for glookup, a command-line grade-checking program used by the UC Berkeley EECS Department. Check out the **live version** at http://www.ocf.berkeley.edu/~allenguo/.
+
+gglookup was built in 10 hours at HackJam 2014, hosted by [Hackers at Berkeley](http://hackersatberkeley.com).
+
+Development
+-----------
+
+Planned future improvements include:
+* Better support for large resolutions
+* Improved authentication security
+* More tags/labels for assignments
+* Better handling of edge cases
 
 Credits
 -------
