@@ -10,4 +10,4 @@ Credits
 
 Created by Allen Guo, Arno Chang, Eric Bo, Evan Limanto, and Yang Yu.
 
-Built using jQuery, Bootstrap, Font Awesome, and Chart.js.
+Built using Flask, jQuery, Bootstrap, Font Awesome, and Chart.js.
