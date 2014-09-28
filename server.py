@@ -1,7 +1,10 @@
 from pexpect import pxssh
 from flask import Flask, request, g, render_template, redirect
+from parse2 import parse, parse_stats, parse_assignment_list, parse_all_grades
+import json
 
 app = Flask(__name__)
+# password = "Im2afn9tIm2afn9t"
 
 def go1(username, password):
 	s = pxssh.pxssh()
@@ -28,12 +31,12 @@ def go1(username, password):
 	    
 	    ret = ret.replace('\\r\\n','\n')
 	  
-	    # text_file = open("output.txt","w")
-	    # text_file.write(ret)
-	    # text_file.close()
+	    text_file = open("output.txt","w")
+	    text_file.write(ret)
+	    text_file.close()
 
 	    s.logout()
-	    return "{\"data\":\"" + ret + "\"}"
+	    return None
 
 def go2(username, password, assignment):
 	s = pxssh.pxssh()
@@ -59,30 +62,45 @@ def go2(username, password, assignment):
 	    
 	    ret = ret.replace('\\r\\n','\n')
 	  
-	    # text_file = open("output.txt","w")
-	    # text_file.write(ret)
-	    # text_file.close()
+	    text_file = open("output1.txt","w")
+	    text_file.write(ret)
+	    text_file.close()
 
 	    s.logout()
-	    return "{\"data\":\"" + ret + "\"}"
-
+	    return None
 
 @app.route('/api/1')
 def api1():
 	username = request.args.get('username')
 	password = request.args.get('password')
-	password = "Im2afn9tIm2afn9t"
+	callback = request.args.get('callback')
 
-	return go1(username, password)
+	ret = go1(username, password)
+	dict1, dict2, dict3, stats, dist = parse(ret)
+	dict1 = (json.dumps(dict1))
+	dict2 = (json.dumps(dict2))
+	dict3 = (json.dumps(dict3))
+	print(dict2)
+	print(dict3)
+	stats = (json.dumps(stats))
+	dist = (json.dumps(dist))
+	lst = [dict1, dict2, dict3, stats, dist]
+
+	return callback + "(" + json.dumps({'data': lst}) + ")"
 
 @app.route('/api/2')
 def api2():
 	username = request.args.get('username')
-	password = request.args.get('password')
 	assignment = request.args.get('assignment')
-	password = "Im2afn9tIm2afn9t"
+	callback = request.args.get('callback')
+	password = request.args.get('password')
+	
+	go2(username, password, assignment)
+	ret = open('output1.txt').read()
 
-	return go2(username, password, assignment)
+	stats = parse_stats(ret)
+
+	return callback + "(" + json.dumps(stats) + ")"
 
 if __name__ == "__main__":
     app.run()
