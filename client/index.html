@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>ggLookup &ndash; graphical glookup</title>
+  
+  <meta name="author" content="Allen Guo">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="shortcut icon" type="image/vnd.microsoft.icon" href="images/favicon.ico">
+  
+  <!-- START STYLESHEETS -->
+  <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css">
+  <link href="stylesheet.css" rel="stylesheet">
+  <!-- END STYLESHEETS -->
+  
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+  <![endif]-->
+  <!--[if gte IE 9]>
+    <style type="text/css">
+      .gradient {
+          filter: none;
+      }
+    </style>
+  <![endif]-->
+</head>
+<body>
+<nav class="navbar navbar-default animated animated slideInDown" role="navigation">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">ggLookup</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="#">My Grades</a></li>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Contact</a></li>
+        <li><a href="#">Donate</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+      <form class="navbar-form navbar-left" role="search" method="post" action="localhost:8000/#">
+        <div class="form-group">
+          <input id="user-box" type="text" class="form-control" placeholder="Username">
+          <input id="pass-box" type="password" class="form-control" placeholder="Password">
+        </div>
+        <button type="submit" class="btn btn-default">Retrieve Grades</button>
+      </form>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+<section id="initLayer" class="center-box">
+  <div class="center-cell">
+    <i id="main-icon" class="fa fa-check-circle-o"></i>
+    <h1>ggLookup</h1>
+    <h2>graphical interface for glookup</h2>
+  </div>
+</section>
+
+<section id="mainLayer" class="row" style="display: none;">
+<div class="col-md-4 animated slideInLeft">
+<div id="sidebar">
+  <h3>Course Assignments</h3>
+  <div id="assignments-list" style="overflow: auto">
+  <span id="sidebar-load"><i class="fa fa-spinner fa-spin"></i> Loading...</span>
+  </div>
+</div>
+</div>
+<div id="right-section" class="col-md-8">
+<div id="main-panel" class="animated slideInRight">
+  <h3 id="main-title">Class Distribution</h3>
+  <span id="main-load"><i class="fa fa-spinner fa-spin"></i> Loading...</span><br>
+  <canvas id="chart" width="700" height="275"></canvas>
+</div>
+<div id="bottom-panel" class="animated slideInUp">
+  <h3>Statistics</h3>
+  <span id="bottom-load"><i class="fa fa-spinner fa-spin"></i> Loading...</span>
+  <table id="stats" class="table table-condensed table-hover">
+    <thead>
+    </thead>
+    <tbody id="stats-body"></tbody>
+  </table>
+</div>
+</div>
+</section>
+
+<section>
+  <div class="footer-section">
+    HackJam 2014 // Allen Guo, Arno Chang, Eric Bo, Evan Limanto, Yang Yu
+  </div>
+</section>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.1-beta.2/Chart.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script>
+var chart;
+var tabsLock = false;
+
+$('form').submit(function (e) {
+  e.preventDefault();
+  login();
+});
+
+function login() {
+  $('#initLayer').remove();
+  $('#mainLayer').css('display', 'block');
+  sessionStorage.clear();
+  sessionStorage.user = $('#user-box').val();
+  sessionStorage.pass = $('#pass-box').val();
+  main();
+}
+
+function main() {
+  $('.assignment').remove();
+  $('#sidebar-load').css('display', 'block');
+  clearChart();
+  clearStats();
+  // Make AJAX calls
+  $.ajax({
+    url: 'http://gglookup.ngrok.com/api/1?username=' + sessionStorage.user + '&password=' + sessionStorage.pass,
+    dataType: 'jsonp',
+    success: function(json) {
+      submitted = JSON.parse(json.data[0]);
+      grades = JSON.parse(json.data[1]);
+      weights = JSON.parse(json.data[2]);
+      stats = JSON.parse(json.data[3]);
+      distrib = JSON.parse(json.data[4]);
+      console.log(weights);
+      // Populate sidebar
+      hideLoading('sidebar');
+      for (var i = 0; i < Object.keys(grades).length; i++) {
+        var key = Object.keys(grades)[i];
+        var gradePair = grades[key].split('/');
+        var grade = gradePair[0];
+        var gradeMax = gradePair[1];
+        var weight;
+        // Hard-code all the things
+        if (key.indexOf('Total') != -1 || key.indexOf('lettergrade') != -1 || key.indexOf('total') != -1) {
+          weight = 1;
+        } else {
+          weight = weights[key]
+        }
+        addAssignment(key, grade, gradeMax, weight, Object.keys(submitted));
+      }
+      // Draw chart
+      hideLoading('main');
+      drawDistrib(distrib);
+      // Generate stats
+      hideLoading('bottom');
+      showStats(stats);
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      $('.alert').remove(); // Remove existing alert
+      $('#mainLayer').prepend('<div style="margin: 0px 30px;" class="alert alert-danger" role="alert"><a href="#" class="alert-link">Error: Incorrect password.</a></div>');
+      setTimeout(function(){$('.alert').remove()}, 3000);
+    }
+  });
+}
+
+function addAssignment(name, grade, gradeMax, weight, submitted) {
+  console.log(name, grade, gradeMax, weight, submitted);
+  var className = 'assignment';
+  var label = '';
+  if (weight == '0') {
+    var className = 'assignment assignment-unweighted';
+    var label = '<span class="label label-default" style="float:right">Unweighted</span>'
+  } else {
+    if (grade == '---') {
+      if (submitted.indexOf(name) == -1) {
+        // Ungraded and unsubmitted (DGAF)
+        return;
+      } else {
+        // Ungraded and submitted
+        var className = 'assignment assignment-ungraded';
+        var label = '<span class="label label-info" style="float:right">Not Yet Graded</span>';
+      }    
+    } else if (submitted.indexOf(name) == -1) {
+      // Graded but not submitted
+      // var className = 'assignment assignment-unsubmitted';
+      // var label = '<span class="label label-warning" style="float:right">Unsubmitted</span>';        
+    }
+  }
+  $('#assignments-list').append('<div class="' + className + ' animated slideInUp" style="cursor: pointer;" onclick="if (!tabsLock) { showAssignmentData(\'' + name + '\'); $(this).addClass(\'assignment-selected\')}"><b>' + name + '</b><br>' + grade + ' / ' + gradeMax + label + '</div>')
+}
+
+//ses.setItem('key',value);
+//sessionStorage.getItem('key',value);
+
+function showAssignmentData(name) {
+  $('.assignment-selected').removeClass('assignment-selected');
+  clearChart();
+  clearStats();
+  tabsLock = true;
+  success = function(json) {
+    sessionStorage[name] = JSON.stringify(json);
+    console.log(json);
+    var stats = json[0];
+    var distrib = json[1];
+    // Draw chart
+    hideLoading('main');
+    drawDistrib(distrib);
+    // Generate stats
+    hideLoading('bottom');
+    showStats(stats);
+    // Release lock
+    tabsLock = false;
+  }
+  var cached = sessionStorage[name];
+  console.log(cached);
+  if (cached) {
+    console.log("cached");
+    success(JSON.parse(cached));
+  } else {
+    $.ajax({
+      url: 'http://gglookup.ngrok.com/api/2?username='+sessionStorage.user+'&password='+sessionStorage.pass+'&assignment=' + name,
+      dataType: 'jsonp',
+      success: success
+    });
+  }
+}
+
+function drawDistrib(distrib) {
+  var keys = Object.keys(distrib);
+  var values = [];
+  for (var i = 0; i < keys.length; i++) {
+    values.push(distrib[keys[i]]);
+  }
+  drawChart(keys, values);
+}      
+
+function drawChart(labels, data) {
+  var ctx = document.getElementById("chart").getContext("2d");
+  var data = {
+    labels: labels,
+    datasets: [
+      {
+        label: "Class Distribution",
+        fillColor: "rgba(120,120,120,0.5)",
+        strokeColor: "rgba(120,120,120,0.8)",
+        highlightFill: "rgba(120,120,120,0.75)",
+        highlightStroke: "rgba(120,120,120,1)",
+        data: data
+      }
+    ]
+  };
+  chart = new Chart(ctx).Bar(data, {barValueSpacing: 0});
+}
+
+function clearChart() {
+  if (chart) {
+    chart.destroy();
+  }
+  $('#main-load').css('display', 'block');
+}
+
+function showStats(stats) {
+  var statKeys = ['Your score', 'Mean', 'Mode', 'Standard deviation', 'Minimum', '1st quartile', '2nd quartile (median)', '3rd quartile', 'Maximum', 'Nominal max possible']
+  for (var i = 0; i < statKeys.length; i++) {
+    $('#stats-body').append('<tr><td>' + statKeys[i] + '</td><td>' + stats[i] + '</td></tr>');
+  }
+}      
+
+function clearStats() {
+  $('#stats-body').empty();
+  $('#bottom-load').css('display', 'block');
+}
+
+// sectionName: 'sidebar', 'main', or 'bottom'
+function hideLoading(sectionName) {
+  $('#' + sectionName + '-load').css('display', 'none');
+}
+
+</script>
