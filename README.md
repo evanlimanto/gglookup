@@ -5,6 +5,15 @@ gglookup
 
 gglookup was built in 10 hours at HackJam 2014, hosted by [Hackers at Berkeley](http://hackersatberkeley.com).
 
+Development
+-----------
+
+Planned future improvements include:
+* Better support for large resolutions
+* Improved authentication security
+* More tags/labels for assignments
+* Better handling of edge cases
+
 Credits
 -------
 
