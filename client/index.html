@@ -202,10 +202,10 @@ function addAssignment(name, grade, gradeMax, weight, submitted) {
 //sessionStorage.getItem('key',value);
 
 function showAssignmentData(name) {
+  $('.assignment-selected').removeClass('assignment-selected');
   if (demo) {
     return;
-  }
-  $('.assignment-selected').removeClass('assignment-selected');
+  }  
   clearChart();
   clearStats();
   tabsLock = true;
