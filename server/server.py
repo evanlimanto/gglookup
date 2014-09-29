@@ -1,10 +1,9 @@
 from pexpect import pxssh
 from flask import Flask, request, g, render_template, redirect
-from parse2 import parse, parse_stats, parse_assignment_list, parse_all_grades
+from parse import parse, parse_stats, parse_assignment_list, parse_all_grades
 import json
 
 app = Flask(__name__)
-# password = "Im2afn9tIm2afn9t"
 
 def go1(username, password):
 	s = pxssh.pxssh()
@@ -59,7 +58,6 @@ def go2(username, password, assignment):
 	    	ret += str
 	    
 	    ret = ret.replace('glookup -s ' + assignment,'')
-	    
 	    ret = ret.replace('\\r\\n','\n')
 	  
 	    text_file = open("output1.txt","w")
@@ -69,19 +67,20 @@ def go2(username, password, assignment):
 	    s.logout()
 	    return None
 
+#api calls have to be made with jsonp
 @app.route('/api/1')
 def api1():
 	username = request.args.get('username')
 	password = request.args.get('password')
 	callback = request.args.get('callback')
 
-	ret = go1(username, password)
-	dict1, dict2, dict3, stats, dist = parse(ret)
+	go1(username, password)
+	dict1, dict2, dict3, stats, dist = parse()
+	
 	dict1 = (json.dumps(dict1))
 	dict2 = (json.dumps(dict2))
 	dict3 = (json.dumps(dict3))
-	print(dict2)
-	print(dict3)
+
 	stats = (json.dumps(stats))
 	dist = (json.dumps(dist))
 	lst = [dict1, dict2, dict3, stats, dist]
