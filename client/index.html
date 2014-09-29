@@ -108,6 +108,7 @@
 <script>
 var chart;
 var tabsLock = false;
+var demo = false;
 
 $('form').submit(function (e) {
   e.preventDefault();
@@ -120,6 +121,7 @@ function login() {
   sessionStorage.clear();
   sessionStorage.user = $('#user-box').val();
   sessionStorage.pass = $('#pass-box').val();
+  demo = sessionStorage.user == 'username' && sessionStorage.pass == 'password'
   main();
 }
 
@@ -130,8 +132,8 @@ function main() {
   clearStats();
   // Make AJAX calls
   $.ajax({
-    url: 'http://gglookup.ngrok.com/api/1?username=' + sessionStorage.user + '&password=' + sessionStorage.pass,
-    dataType: 'jsonp',
+    url: demo ? 'data.js' : 'http://gglookup.ngrok.com/api/1?username=' + sessionStorage.user + '&password=' + sessionStorage.pass,
+    dataType: demo ? 'json' : 'jsonp',
     success: function(json) {
       submitted = JSON.parse(json.data[0]);
       grades = JSON.parse(json.data[1]);
