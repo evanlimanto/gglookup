@@ -5,8 +5,6 @@ gglookup
 
 gglookup was built in 10 hours at HackJam 2014, hosted by [Hackers at Berkeley](http://hackersatberkeley.com).
 
-demo username: "username", password: "password" (without functionality though)
-
 Screenshots
 -----------
 
