@@ -14,7 +14,7 @@ Screenshots
 
 ### gglookup
 
-![gglookup-image](http://cl.ly/image/1w371D1J0g3R/Screen%20Shot%202014-09-28%20at%201.49.02%20AM.png)
+![gglookup-image](https://cloud.githubusercontent.com/assets/8944203/8258733/4be7e2ee-1685-11e5-856f-609a504767b0.PNG)
 
 
 Development
