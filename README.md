@@ -10,7 +10,7 @@ Screenshots
 
 ### Normal glookup
 
-![glookup-interface](http://cl.ly/image/2s2f273K0A33/Screen%20Shot%202014-09-28%20at%207.31.49%20PM.png)
+![glookup-interface](https://cloud.githubusercontent.com/assets/8944203/11109369/87e94076-88a4-11e5-8956-16d96b12f710.PNG)
 
 ### gglookup
 
